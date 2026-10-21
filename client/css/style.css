@@ -1,0 +1,92 @@
+:root {
+  --bg: #0e1014;
+  --panel: #161a21;
+  --edge: #262c36;
+  --text: #dce3ec;
+  --muted: #8b96a5;
+  --accent: #4f9cf9;
+  --ok: #3ecf8e;
+  --err: #f07178;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font: 14px/1.45 system-ui, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  height: 100vh;
+  overflow: hidden;
+}
+
+#app { display: flex; height: 100vh; }
+
+#panel {
+  width: 320px;
+  min-width: 280px;
+  background: var(--panel);
+  border-right: 1px solid var(--edge);
+  padding: 16px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+#panel h1 { font-size: 18px; font-weight: 600; }
+#panel h2 { font-size: 13px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 8px; }
+
+section { border: 1px solid var(--edge); border-radius: 8px; padding: 12px; display: flex; flex-direction: column; gap: 8px; }
+
+button {
+  background: var(--accent);
+  color: #fff;
+  border: 0;
+  border-radius: 6px;
+  padding: 8px 12px;
+  cursor: pointer;
+  font-weight: 600;
+}
+button:disabled { opacity: 0.4; cursor: not-allowed; }
+button:not(:disabled):hover { filter: brightness(1.1); }
+
+input[type="file"] { color: var(--muted); font-size: 12px; }
+select { background: var(--bg); color: var(--text); border: 1px solid var(--edge); border-radius: 6px; padding: 6px; }
+label { display: flex; flex-direction: column; gap: 4px; color: var(--muted); }
+label.row { flex-direction: row; align-items: center; gap: 6px; }
+
+.status { font-size: 12px; color: var(--muted); }
+.status.ok { color: var(--ok); }
+.status.err { color: var(--err); }
+
+progress { width: 100%; height: 6px; }
+
+.mono { font-family: ui-monospace, monospace; font-size: 12px; color: var(--muted); white-space: pre-wrap; }
+
+#viewport { flex: 1; position: relative; }
+#canvas { width: 100%; height: 100%; display: block; }
+
+#webcam {
+  position: absolute;
+  right: 16px;
+  bottom: 16px;
+  width: 200px;
+  border-radius: 8px;
+  border: 1px solid var(--edge);
+  transform: scaleX(-1);
+  display: none;
+}
+#webcam.show { display: block; }
+
+#viewportHint {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--muted);
+  pointer-events: none;
+}
+
+.hidden { display: none !important; }
+a { color: var(--accent); }

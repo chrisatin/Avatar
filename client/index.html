@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Avatar Pipeline — T4</title>
+  <link rel="stylesheet" href="/static/css/style.css" />
+  <script type="importmap">
+  {
+    "imports": {
+      "three": "https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.module.js",
+      "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.170.0/examples/jsm/",
+      "@pixiv/three-vrm": "https://cdn.jsdelivr.net/npm/@pixiv/three-vrm@3.4.2/lib/three-vrm.module.js",
+      "@mediapipe/tasks-vision": "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.14/vision_bundle.mjs"
+    }
+  }
+  </script>
+</head>
+<body>
+  <div id="app">
+    <aside id="panel">
+      <h1>Avatar Pipeline</h1>
+      <section>
+        <h2>1 · Create avatar</h2>
+        <input type="file" id="videoInput" accept="video/*" />
+        <button id="uploadBtn" disabled>Upload &amp; build</button>
+        <div id="jobStatus" class="status">idle</div>
+        <progress id="jobProgress" max="1" value="0"></progress>
+        <button id="loadModelBtn" disabled>Load model</button>
+        <a id="downloadLink" class="hidden" download>Download .glb</a>
+      </section>
+      <section>
+        <h2>2 · Drive avatar</h2>
+        <label>Tracking
+          <select id="trackMode">
+            <option value="local">Local (MediaPipe WASM)</option>
+            <option value="server">Server (WebSocket → T4)</option>
+          </select>
+        </label>
+        <button id="webcamBtn">Start webcam</button>
+        <label class="row"><input type="checkbox" id="mirror" checked /> mirror</label>
+        <label class="row"><input type="checkbox" id="showVideo" checked /> show camera</label>
+      </section>
+      <section>
+        <h2>Stats</h2>
+        <div id="stats" class="mono">
+          <div>render fps: <span id="fps">–</span></div>
+          <div>track ms: <span id="trackMs">–</span></div>
+          <div>mode: <span id="modeLabel">–</span></div>
+          <div>backend: <span id="backendLabel">–</span></div>
+        </div>
+      </section>
+      <section>
+        <h2>Server</h2>
+        <button id="healthBtn">Check health</button>
+        <pre id="healthOut" class="mono"></pre>
+      </section>
+    </aside>
+    <main id="viewport">
+      <canvas id="canvas"></canvas>
+      <video id="webcam" autoplay playsinline muted></video>
+      <div id="viewportHint">Upload a short video (or load a built model) to begin.</div>
+    </main>
+  </div>
+  <script type="module" src="/static/js/main.js"></script>
+</body>
+</html>

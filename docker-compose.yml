@@ -1,0 +1,22 @@
+services:
+  avatar:
+    build: .
+    image: avatar-pipeline:cu121
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./outputs:/app/outputs
+      - ./assets/models:/app/assets/models
+      - ./assets/samples:/app/assets/samples
+    environment:
+      - NVIDIA_VISIBLE_DEVICES=all
+      - NVIDIA_DRIVER_CAPABILITIES=compute,utility,graphics,video
+      - AVATAR_FORCE_CPU=0
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]
+    restart: unless-stopped

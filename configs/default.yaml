@@ -1,0 +1,29 @@
+ingest:
+  target_frames: 24
+  min_frames: 6
+  max_frames: 48
+  sample_fps: 25.0
+  face_crop_margin: 0.35
+  min_face_size: 96
+  remove_background: false
+
+fit:
+  backend: auto          # auto | flame | template
+  num_shape: 100
+  num_expr: 50
+  iterations: 60
+  lr: 0.02
+  texture_size: 1024
+  template_subdivisions: 32
+
+server:
+  host: "0.0.0.0"
+  port: 8000
+  max_upload_mb: 200
+  job_workers: 2
+  tracker_max_fps: 30.0
+  jpeg_quality: 85
+
+device: cuda
+outputs_dir: outputs
+models_dir: assets/models

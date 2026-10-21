@@ -1,0 +1,11 @@
+# Optional extras — install selectively.
+# FLAME identity fitting (register at https://flame.is.tue.mpg.de first)
+smplx>=0.1.28
+chumpy>=0.70
+trimesh>=4.0
+# Server-side rendering (Option 2)
+pyrender>=0.1.45
+PyOpenGL==3.1.6
+# NVENC WebRTC streaming (PR #1199 unmerged; may require building av from source)
+av>=12.0
+aiortc>=1.9.0

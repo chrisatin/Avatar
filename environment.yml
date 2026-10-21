@@ -1,0 +1,16 @@
+name: avatar
+channels:
+  - pytorch
+  - nvidia
+  - conda-forge
+  - defaults
+dependencies:
+  - python=3.10
+  - pip
+  - pytorch=2.4.1
+  - torchvision=0.19.1
+  - pytorch-cuda=12.1
+  - ffmpeg>=6.0
+  - pip:
+      - -r requirements.txt
+      - -r requirements-optional.txt

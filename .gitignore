@@ -1,0 +1,16 @@
+.venv/
+__pycache__/
+*.py[cod]
+*.egg-info/
+.pytest_cache/
+outputs/
+!outputs/.gitkeep
+assets/models/face_landmarker.task
+assets/models/mat_final.npy
+assets/models/flame/**
+!assets/models/flame/.gitkeep
+assets/samples/*.mp4
+*.glb
+.DS_Store
+.idea/
+.vscode/
