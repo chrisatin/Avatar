@@ -13,6 +13,7 @@ source "$VENV_DIR/bin/activate"
 python -m pip install --upgrade pip
 pip install torch torchvision --index-url https://download.pytorch.org/whl/cu121
 pip install -r requirements.txt
+bash scripts/setup_headless_gl.sh || true
 python scripts/download_models.py || true
 
 echo

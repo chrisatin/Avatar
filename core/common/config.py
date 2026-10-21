@@ -82,7 +82,7 @@ def load_config(path: str | Path | None = None) -> PipelineConfig:
         with open(cfg_path, "r", encoding="utf-8") as fh:
             data = yaml.safe_load(fh) or {}
     device = data.get("device", "cuda" if _cuda_available() else "cpu")
-    if os.environ.get("AVATAR_FORCE_CPU"):
+    if _env_flag("AVATAR_FORCE_CPU"):
         device = "cpu"
     elif device == "cuda" and not _cuda_available():
         device = "cpu"
@@ -96,8 +96,12 @@ def load_config(path: str | Path | None = None) -> PipelineConfig:
     )
 
 
+def _env_flag(name: str) -> bool:
+    return os.environ.get(name, "").strip().lower() not in ("", "0", "false", "no", "off")
+
+
 def _cuda_available() -> bool:
-    if not os.environ.get("AVATAR_FORCE_CPU"):
+    if not _env_flag("AVATAR_FORCE_CPU"):
         try:
             import torch
 

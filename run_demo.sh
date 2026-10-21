@@ -11,6 +11,11 @@ if [ -f .venv/bin/activate ]; then
   source .venv/bin/activate
 fi
 
+GL_LIB="${GL_PREFIX:-$HOME/.local/gl-libs}/usr/lib/x86_64-linux-gnu"
+if [ -d "$GL_LIB" ]; then
+  export LD_LIBRARY_PATH="$GL_LIB:${LD_LIBRARY_PATH:-}"
+fi
+
 if [ ! -f assets/models/face_landmarker.task ]; then
   echo "[run_demo] face_landmarker.task missing — downloading…"
   python scripts/download_models.py || true
