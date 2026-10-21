@@ -6,7 +6,7 @@ from pathlib import Path
 import numpy as np
 
 from core.common.logging_utils import get_logger
-from core.creation.frames import ScoredFrame, crop_face
+from core.creation.frames import ScoredFrame, crop_face_with_offset
 from core.animation.tracker import BaseTracker, create_tracker
 
 logger = get_logger(__name__)
@@ -28,14 +28,12 @@ def track_frames(
     tracker = tracker or create_tracker("auto")
     out: list[TrackedFrame] = []
     for f in scored:
-        cropped = crop_face(f.image, None, margin=crop_margin)
+        cropped, ox, oy = crop_face_with_offset(f.image, None, margin=crop_margin)
         result = tracker.process(cropped)
         lms = np.asarray(result.landmarks, dtype=np.float32) if result.present else None
         if lms is not None:
-            scale_x = f.image.shape[1] / max(cropped.shape[1], 1)
-            scale_y = f.image.shape[0] / max(cropped.shape[0], 1)
-            lms[:, 0] *= scale_x
-            lms[:, 1] *= scale_y
+            lms[:, 0] += ox
+            lms[:, 1] += oy
         out.append(
             TrackedFrame(
                 scored=f,

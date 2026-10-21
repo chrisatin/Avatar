@@ -88,7 +88,8 @@ class MediaPipeTracker(BaseTracker):
         if not result.face_landmarks:
             return TrackResult(inference_ms=elapsed)
         face = result.face_landmarks[0]
-        landmarks = [[lm.x, lm.y, lm.z] for lm in face]
+        h, w = image_bgr.shape[:2]
+        landmarks = [[lm.x * w, lm.y * h, lm.z * w] for lm in face]
         blendshapes: dict[str, float] = {}
         if result.face_blendshapes:
             for cat in result.face_blendshapes[0]:

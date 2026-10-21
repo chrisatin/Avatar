@@ -61,6 +61,16 @@ def crop_face(
     margin: float = 0.35,
     min_size: int = 96,
 ) -> np.ndarray:
+    crop, _, _ = crop_face_with_offset(img, landmarks, margin, min_size)
+    return crop
+
+
+def crop_face_with_offset(
+    img: np.ndarray,
+    landmarks: np.ndarray | None = None,
+    margin: float = 0.35,
+    min_size: int = 96,
+) -> tuple[np.ndarray, int, int]:
     h, w = img.shape[:2]
     if landmarks is not None and landmarks.size:
         x0, y0, x1, y1 = face_bbox(landmarks, margin=margin)
@@ -73,7 +83,7 @@ def crop_face(
     y0 = max(0, y0)
     x1 = min(w, max(x1, x0 + min_size))
     y1 = min(h, max(y1, y0 + min_size))
-    return img[y0:y1, x0:x1].copy()
+    return img[y0:y1, x0:x1].copy(), x0, y0
 
 
 def select_keyframes(
