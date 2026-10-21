@@ -50,6 +50,31 @@ ssh -N -L 8000:localhost:8000 user@t4-server
 
 For HTTPS/WebRTC deployments put nginx/caddy in front with TLS (browsers require secure contexts for `getUserMedia` unless on `localhost`).
 
+## SLURM clusters (GPU access via sbatch)
+
+On clusters where GPUs are gated by SLURM (interactive shells get `Failed to initialize NVML`), submit work with `sbatch`. Use this header (validated on the GPU-Workstation cluster, 4× T4):
+
+```bash
+#!/usr/bin/env bash
+#SBATCH --job-name=physir-splat
+#SBATCH --partition=main
+#SBATCH --nodes=1
+#SBATCH --ntasks=1
+#SBATCH --cpus-per-task=4
+#SBATCH --mem=16G
+#SBATCH --gres=gpu:1
+#SBATCH --time=08:00:00
+#SBATCH --output=logs/out/%x-%j.out
+#SBATCH --error=logs/err/%x-%j.err
+
+set -eo pipefail
+```
+
+- Check free resources first: `slurm-avail`
+- A ready-made validation job exists: `mkdir -p logs/out logs/err && sbatch scripts/t4_smoke.sh` (GL setup, CUDA/FP16 check, pytest, creation E2E, driving benchmarks, server smoke test). Results land in `logs/out/physir-splat-<jobid>.out`.
+- Inside the allocation, `nvidia-smi` and CUDA work normally.
+- **Headless MediaPipe:** needs `libGLESv2.so.2`. Without sudo: `bash scripts/setup_headless_gl.sh` extracts `libgles2/libegl1/libgl1` into `~/.local/gl-libs`; `run_demo.sh` and `t4_smoke.sh` pick it up automatically via `LD_LIBRARY_PATH`.
+
 ## Performance expectations on T4
 
 | Task | Expected |

@@ -166,8 +166,22 @@ def main() -> int:
     if args.mode in ("export", "all"):
         results.append(bench_glb_export(out_dir))
 
-    report = {"results": results}
     report_path = out_dir / "benchmark.json"
+    if report_path.exists():
+        try:
+            existing = json.loads(report_path.read_text(encoding="utf-8"))
+            prior = [
+                r
+                for r in existing.get("results", [])
+                if not any(
+                    r.get("mode") == n.get("mode") and r.get("backend") == n.get("backend")
+                    for n in results
+                )
+            ]
+            results = prior + results
+        except Exception:
+            pass
+    report = {"results": results, "updated_at": time.time()}
     report_path.write_text(json.dumps(report, indent=2), encoding="utf-8")
     print(json.dumps(report, indent=2))
     logger.info("benchmark written to %s", report_path)
