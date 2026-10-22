@@ -35,6 +35,46 @@ class BaseTracker:
         pass
 
 
+def _preload_headless_gl() -> None:
+    """Make a user-local GLES/EGL install visible to MediaPipe's dlopen.
+
+    ``LD_LIBRARY_PATH`` is read by the dynamic linker at process start, so
+    exporting it after Python is running is not enough. Preloading the
+    libraries with ``RTLD_GLOBAL`` satisfies MediaPipe's ``DT_NEEDED`` entries
+    for the CLI/benchmark paths that don't go through ``run_demo.sh``.
+    """
+    import ctypes
+    import ctypes.util
+    import sys
+
+    if not sys.platform.startswith("linux"):
+        return
+    try:
+        if ctypes.util.find_library("GLESv2"):
+            return
+    except Exception:
+        pass
+    prefix = Path(
+        os.environ.get("GL_PREFIX", str(Path.home() / ".local" / "gl-libs"))
+    ) / "usr" / "lib" / "x86_64-linux-gnu"
+    if not prefix.is_dir():
+        return
+    for name in (
+        "libGLdispatch.so.0",
+        "libGLX.so.0",
+        "libGL.so.1",
+        "libEGL.so.1",
+        "libGLESv2.so.2",
+    ):
+        lib = prefix / name
+        if not lib.exists():
+            continue
+        try:
+            ctypes.CDLL(str(lib), mode=ctypes.RTLD_GLOBAL)
+        except OSError as exc:
+            logger.debug("could not preload %s: %s", lib, exc)
+
+
 class MediaPipeTracker(BaseTracker):
     name = "mediapipe"
 
@@ -47,6 +87,7 @@ class MediaPipeTracker(BaseTracker):
         min_tracking_confidence: float = 0.5,
         running_mode: str = "VIDEO",
     ) -> None:
+        _preload_headless_gl()
         from mediapipe.tasks.python import BaseOptions
         from mediapipe.tasks.python.core.base_options import BaseOptions as BO
         from mediapipe.tasks.python.vision import (

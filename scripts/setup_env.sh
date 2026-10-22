@@ -10,6 +10,8 @@ fi
 # shellcheck disable=SC1091
 source "$VENV_DIR/bin/activate"
 
+# Some environments (e.g. uv-created venvs) ship without pip.
+python -m ensurepip --upgrade >/dev/null 2>&1 || true
 python -m pip install --upgrade pip
 pip install torch torchvision --index-url https://download.pytorch.org/whl/cu121
 pip install -r requirements.txt

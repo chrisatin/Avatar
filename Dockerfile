@@ -7,7 +7,7 @@ ENV DEBIAN_FRONTEND=noninteractive \
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
     python3.10 python3.10-venv python3-pip \
-    ffmpeg libgl1 libglib2.0-0 libegl1 libglvnd0 libosmesa6 \
+    ffmpeg libgl1 libglib2.0-0 libegl1 libgles2 libglvnd0 libosmesa6 \
     curl ca-certificates \
     && rm -rf /var/lib/apt/lists/* \
     && ln -sf /usr/bin/python3.10 /usr/local/bin/python

@@ -40,7 +40,8 @@ def splat_albedo(
         front = verts[:, 2] > 0.0
         u_px = np.clip((cx + verts[:, 0] * s).astype(np.int32), 0, f.image.shape[1] - 1)
         v_px = np.clip((cy - verts[:, 1] * s).astype(np.int32), 0, f.image.shape[0] - 1)
-        colors = f.image[v_px, u_px].astype(np.float32)
+        # Frames are decoded as BGR (OpenCV convention); GLB textures are RGB.
+        colors = f.image[v_px, u_px][:, ::-1].astype(np.float32)
         valid = front & (u_px > 0) & (v_px > 0)
         tex[py[valid], px[valid]] += colors[valid] * scale_w
         weight[py[valid], px[valid]] += scale_w

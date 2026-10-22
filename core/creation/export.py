@@ -139,13 +139,18 @@ def write_glb(
             "type": "VEC2",
         },
     ]
-    for v in target_views:
+    for v, delta in zip(target_views, mesh.blendshape_deltas):
+        d = np.asarray(delta, dtype=np.float32)
         accessors.append(
             {
                 "bufferView": v,
                 "componentType": 5126,
                 "count": int(vertices.shape[0]),
                 "type": "VEC3",
+                # Required by the glTF spec for POSITION accessors (including
+                # morph targets); three.js/GLTFLoader warns without them.
+                "min": d.min(axis=0).tolist(),
+                "max": d.max(axis=0).tolist(),
             }
         )
     target_accessor_start = 4
@@ -155,19 +160,25 @@ def write_glb(
         "indices": 0,
         "material": 0,
     }
+    mesh_def: dict = {"name": name, "primitives": [primitive]}
     if mesh.blendshape_names:
         primitive["targets"] = [
             {"POSITION": target_accessor_start + i}
             for i in range(len(mesh.blendshape_names))
         ]
-        primitive["extras"] = {"targetNames": list(mesh.blendshape_names)}
+        target_names = list(mesh.blendshape_names)
+        # three.js/GLTFLoader reads morph names from mesh.extras.targetNames
+        # (Blender's glTF exporter uses the same location). Keep the legacy
+        # primitive-level extras as well for consumers that look there.
+        primitive["extras"] = {"targetNames": target_names}
+        mesh_def["extras"] = {"targetNames": target_names}
 
     gltf: dict = {
         "asset": {"version": "2.0", "generator": "avatar-pipeline/0.1"},
         "scene": 0,
         "scenes": [{"nodes": [0]}],
         "nodes": [{"mesh": 0, "name": name}],
-        "meshes": [{"name": name, "primitives": [primitive]}],
+        "meshes": [mesh_def],
         "accessors": accessors,
         "bufferViews": builder.views,
         "buffers": [{"byteLength": len(builder.blob)}],
@@ -218,18 +229,24 @@ def read_glb_header(path: str | Path) -> dict:
         magic, version, length = struct.unpack("<III", fh.read(12))
         jlen, jtype = struct.unpack("<II", fh.read(8))
         meta = json.loads(fh.read(jlen).decode("utf-8"))
+    morphs = 0
+    morph_names: list[str] = []
+    if meta.get("meshes"):
+        mesh = meta["meshes"][0]
+        primitive = (mesh.get("primitives") or [{}])[0]
+        morphs = len(primitive.get("targets", []))
+        morph_names = (
+            mesh.get("extras", {}).get("targetNames")
+            or primitive.get("extras", {}).get("targetNames")
+            or []
+        )
     return {
         "magic": magic,
         "version": version,
         "length": length,
         "generator": meta.get("asset", {}).get("generator"),
         "meshes": len(meta.get("meshes", [])),
-        "morphs": len(
-            meta.get("meshes", [{}])[0]
-            .get("primitives", [{}])[0]
-            .get("targets", [])
-        )
-        if meta.get("meshes")
-        else 0,
+        "morphs": morphs,
+        "morph_names": list(morph_names),
         "has_texture": "images" in meta,
     }

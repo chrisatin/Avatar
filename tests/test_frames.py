@@ -63,6 +63,29 @@ def test_splat_samples_texels():
     assert len(colors) > 1
 
 
+def test_splat_converts_bgr_to_rgb():
+    from core.creation.template_head import create_avatar_mesh
+    from core.creation.texture import splat_albedo
+
+    mesh = create_avatar_mesh(subdivisions=16)
+    # OpenCV decodes frames as BGR. A uniform BGR (200, 150, 100) frame must
+    # produce an RGB albedo of (100, 150, 200), not a red/blue-swapped one.
+    img = np.full((320, 320, 3), (200, 150, 100), dtype=np.uint8)
+    rng = np.random.default_rng(0)
+    lms = rng.uniform(80, 240, size=(478, 3)).astype(np.float32)
+    lms[1] = [160, 170, 0]
+    lms[234] = [90, 160, 0]
+    lms[454] = [230, 160, 0]
+    lms[33] = [120, 130, 0]
+    lms[263] = [200, 130, 0]
+    f = ScoredFrame(0, img, 80.0, 128.0, 0.0, 1.0)
+    tex = splat_albedo(mesh, [f], [lms], size=128)
+    means = tex.reshape(-1, 3).mean(axis=0)
+    assert abs(float(means[0]) - 100.0) < 2.0
+    assert abs(float(means[1]) - 150.0) < 2.0
+    assert abs(float(means[2]) - 200.0) < 2.0
+
+
 def test_scored_frame_fields():
     img = _fake_frame(3)
     f = ScoredFrame(0, img, sharpness(img), brightness(img), 0.0, 1.0)

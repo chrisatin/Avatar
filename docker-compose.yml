@@ -6,7 +6,10 @@ services:
       - "8000:8000"
     volumes:
       - ./outputs:/app/outputs
-      - ./assets/models:/app/assets/models
+      # Only mount the licensed FLAME drop-in. The redistributable models are
+      # baked into the image; mounting all of ./assets/models would hide them
+      # on a fresh clone where that directory is empty.
+      - ./assets/models/flame:/app/assets/models/flame
       - ./assets/samples:/app/assets/samples
     environment:
       - NVIDIA_VISIBLE_DEVICES=all

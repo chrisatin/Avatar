@@ -46,7 +46,11 @@ def main() -> int:
     MODELS_DIR.mkdir(parents=True, exist_ok=True)
     ok = fetch(FACE_LANDMARKER_URL, FACE_LANDMARKER_PATH, force=args.force)
     if not args.skip_w_matrix:
-        ok = fetch(MAT_FINAL_URL, MAT_FINAL_PATH, force=args.force) or ok
+        # Keep the face-landmarker result: a successful optional download must
+        # not mask a missing/incomplete required model. Fetch it regardless so
+        # a required-model failure doesn't skip the optional asset.
+        mat_ok = fetch(MAT_FINAL_URL, MAT_FINAL_PATH, force=args.force)
+        ok = ok and mat_ok
     flame_dir = MODELS_DIR / "flame"
     logger.info(
         "FLAME model is NOT auto-downloaded (registration required).\n"
