@@ -15,11 +15,19 @@ def test_glb_export(tmp_path):
     assert header["version"] == 2
     assert header["morphs"] == 51
     assert header["has_texture"] is True
+    assert len(header["morph_names"]) == 51
+    assert header["morph_names"][0] == "browDownLeft"
     with open(path, "rb") as fh:
         data = fh.read()
     total = struct.unpack("<I", data[8:12])[0]
     assert total == len(data)
     jlen = struct.unpack("<I", data[12:16])[0]
     meta = json.loads(data[20 : 20 + jlen])
+    # three.js GLTFLoader reads morph target names from mesh.extras.targetNames.
+    assert meta["meshes"][0]["extras"]["targetNames"][0] == "browDownLeft"
+    assert len(meta["meshes"][0]["extras"]["targetNames"]) == 51
     assert meta["meshes"][0]["primitives"][0]["extras"]["targetNames"][0] == "browDownLeft"
     assert "POSITION" in meta["meshes"][0]["primitives"][0]["targets"][0]
+    morph_accessor = meta["accessors"][meta["meshes"][0]["primitives"][0]["targets"][0]["POSITION"]]
+    assert len(morph_accessor["min"]) == 3
+    assert len(morph_accessor["max"]) == 3

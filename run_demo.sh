@@ -12,6 +12,13 @@ if [ -f .venv/bin/activate ]; then
 fi
 
 GL_LIB="${GL_PREFIX:-$HOME/.local/gl-libs}/usr/lib/x86_64-linux-gnu"
+# MediaPipe needs libGLESv2 even with the CPU delegate. On headless hosts where
+# the system package is absent, fetch it into the user prefix automatically.
+if [ ! -e "$GL_LIB/libGLESv2.so.2" ] \
+  && ! ldconfig -p 2>/dev/null | grep -q 'libGLESv2\.so\.2'; then
+  echo "[run_demo] libGLESv2 missing — installing headless GL libs…"
+  bash scripts/setup_headless_gl.sh || true
+fi
 if [ -d "$GL_LIB" ]; then
   export LD_LIBRARY_PATH="$GL_LIB:${LD_LIBRARY_PATH:-}"
 fi

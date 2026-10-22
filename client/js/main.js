@@ -36,6 +36,8 @@ let lastFrameTs = performance.now();
 let fpsAccum = 0;
 let fpsCount = 0;
 let lastTrackMs = 0;
+let localHeadMatrix = null;
+let canvas2d = null;
 
 function resize() {
   const w = canvas.clientWidth || canvas.parentElement.clientWidth;
@@ -72,9 +74,6 @@ function animate() {
   }
 }
 animate();
-
-let localHeadMatrix = null;
-let canvas2d = null;
 
 function matrixToQuat(m) {
   const e = m;
@@ -238,7 +237,9 @@ async function startTracking() {
     $("modeLabel").textContent = "local WASM";
   } else {
     serverTracker = new ServerTracker(({ weights, quat, ms, roundtrip }) => {
-      lastWeights = weights;
+      // The frame sent to the server is mirrored, so restore the subject's
+      // left/right channels before driving the avatar (same as local mode).
+      lastWeights = $("mirror").checked ? swapSides(weights) : weights;
       lastQuat = quat;
       localHeadMatrix = null;
       lastTrackMs = roundtrip ?? ms;
